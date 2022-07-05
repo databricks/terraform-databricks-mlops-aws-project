@@ -1,0 +1,46 @@
+name: Terraform Validation Check
+
+on:
+  workflow_dispatch:
+  pull_request_target:
+
+# Code reference can be found at https://github.com/hashicorp/setup-terraform
+jobs:
+  validate:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform fmt
+        id: fmt
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init
+        id: init
+        run: terraform -chdir=tests init
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform -chdir=tests validate -no-color
+
+      - name: Create Comment
+        uses: actions/github-script@v6
+        id: comment
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Staging Format and Style 🖌 \`${{ steps.fmt.outcome }}\`
+            #### Terraform Staging Initialization ⚙️ \`${{ steps.init.outcome }}\`
+            #### Terraform Staging Validation 🤖 \`${{ steps.validate.outcome }}\`
+            <details><summary>Staging Validation Output</summary>
+            \`\`\`\n
+            ${{ steps.validate.outputs.stdout }}
+            \`\`\`
+            </details>`
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })

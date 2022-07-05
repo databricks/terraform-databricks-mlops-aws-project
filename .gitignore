@@ -7,4 +7,3 @@
 # Terraform
 *.tfstate*
 *terraform*
-*test*
