@@ -9,7 +9,7 @@ The service principals are granted `CAN_MANAGE` permissions on the created works
 **_NOTE:_** 
 1. This module is in preview so it is still experimental and subject to change. Feedback is welcome!
 2. The [Databricks providers](https://registry.terraform.io/providers/databricks/databricks/latest/docs) that are passed into the module must be configured with workspace admin permissions.
-3. The module assumes that the AWS Infrastructure Module has already been applied, namely that service principal groups with token usage permissions have been created with the name `"mlops-service-principals"`.
+3. The module assumes that the AWS Infrastructure Module has already been applied, namely that service principal groups with token usage permissions have been created with the default name `"mlops-service-principals"` or by specifying the `service_principal_group_name` field.
 4. The service principal tokens are created with a default expiration of 100 days (8640000 seconds), and the module will need to be re-applied after this time to refresh the tokens.
 
 ## Usage
@@ -30,6 +30,48 @@ module "mlops_aws_project" {
   }
   service_principal_name = "example-name"
   project_directory_path = "/dir-name"
+}
+```
+
+### Usage example with MLOps AWS Infrastructure Module
+```hcl
+provider "databricks" {
+  alias = "dev" # Authenticate using preferred method as described in Databricks provider
+}
+
+provider "databricks" {
+  alias = "staging"     # Authenticate using preferred method as described in Databricks provider
+}
+
+provider "databricks" {
+  alias = "prod"     # Authenticate using preferred method as described in Databricks provider
+}
+
+module "mlops_aws_infrastructure" {
+  source = "databricks/mlops-aws-infrastructure/databricks"
+  providers = {
+    databricks.dev     = databricks.dev
+    databricks.staging = databricks.staging
+    databricks.prod    = databricks.prod
+  }
+  staging_workspace_id          = "123456789"
+  prod_workspace_id             = "987654321"
+  additional_token_usage_groups = ["users"]     # This field is optional.
+}
+
+
+module "mlops_aws_project" {
+  source = "databricks/mlops-aws-project/databricks"
+  providers = {
+    databricks.staging = databricks.staging
+    databricks.prod    = databricks.prod
+  }
+  service_principal_name = "example-name"
+  project_directory_path = "/dir-name"
+  service_principal_group_name = module.mlops_aws_infrastructure.service_principal_group_name 
+  # The above field is optional, especially since in this case service_principal_group_name will be mlops-service-principals either way, 
+  # but this also serves to create an implicit dependency. Can also be replaced with the following line to create an explicit dependency:
+  # depends_on             = [module.mlops_aws_infrastructure]
 }
 ```
 
@@ -82,6 +124,7 @@ resource "databricks_git_credential" "prod_git" {
 |------|-------------|------|---------|:--------:|
 |service_principal_name|The display name for the service principals.|string|N/A|yes|
 |project_directory_path|Path/Name of Databricks workspace directory to be created for the project. NOTE: The parent directories in the path must already be created.|string|N/A|yes|
+|service_principal_group_name|The name of the service principal group in the staging and prod workspace.|string|`"mlops-service-principals"`|no|
 
 ## Outputs
 | Name | Description | Type | Sensitive |
