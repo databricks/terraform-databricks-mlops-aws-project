@@ -9,7 +9,7 @@ The service principals are granted `CAN_MANAGE` permissions on the created works
 **_NOTE:_** 
 1. This module is in preview so it is still experimental and subject to change. Feedback is welcome!
 2. The [Databricks providers](https://registry.terraform.io/providers/databricks/databricks/latest/docs) that are passed into the module must be configured with workspace admin permissions.
-3. The module assumes that the AWS Infrastructure Module has already been applied, namely that service principal groups with token usage permissions have been created with the default name `"mlops-service-principals"` or by specifying the `service_principal_group_name` field.
+3. The module assumes that the [MLOps AWS Infrastructure Module](https://registry.terraform.io/modules/databricks/mlops-aws-infrastructure/databricks/latest) has already been applied, namely that service principal groups with token usage permissions have been created with the default name `"mlops-service-principals"` or by specifying the `service_principal_group_name` field.
 4. The service principal tokens are created with a default expiration of 100 days (8640000 seconds), and the module will need to be re-applied after this time to refresh the tokens.
 
 ## Usage
@@ -33,7 +33,7 @@ module "mlops_aws_project" {
 }
 ```
 
-### Usage example with MLOps AWS Infrastructure Module
+### Usage example with [MLOps AWS Infrastructure Module](https://registry.terraform.io/modules/databricks/mlops-aws-infrastructure/databricks/latest)
 ```hcl
 provider "databricks" {
   alias = "dev" # Authenticate using preferred method as described in Databricks provider
