@@ -124,7 +124,7 @@ resource "databricks_git_credential" "prod_git" {
 |------|-------------|------|---------|:--------:|
 |service_principal_name|The display name for the service principals.|string|N/A|yes|
 |project_directory_path|Path/Name of Databricks workspace directory to be created for the project. NOTE: The parent directories in the path must already be created.|string|N/A|yes|
-|service_principal_group_name|The name of the service principal group in the staging and prod workspace.|string|`"mlops-service-principals"`|no|
+|service_principal_group_name|The name of the service principal group in the staging and prod workspace. The created service principals will be added to this group.|string|`"mlops-service-principals"`|no|
 
 ## Outputs
 | Name | Description | Type | Sensitive |
