@@ -1,11 +1,11 @@
 data "databricks_group" "staging_sp_group" {
   provider     = databricks.staging
-  display_name = "mlops-service-principals"
+  display_name = var.service_principal_group_name
 }
 
 data "databricks_group" "prod_sp_group" {
   provider     = databricks.prod
-  display_name = "mlops-service-principals"
+  display_name = var.service_principal_group_name
 }
 
 module "staging_sp" {
