@@ -13,7 +13,7 @@ module "staging_sp" {
   providers = {
     databricks = databricks.staging
   }
-  display_name = var.service_principal_name
+  display_name = "staging-${var.service_principal_name}"
   group_name   = data.databricks_group.staging_sp_group.display_name
 }
 
@@ -22,13 +22,13 @@ module "prod_sp" {
   providers = {
     databricks = databricks.prod
   }
-  display_name = var.service_principal_name
+  display_name = "prod-${var.service_principal_name}"
   group_name   = data.databricks_group.prod_sp_group.display_name
 }
 
 resource "databricks_directory" "staging_directory" {
   provider = databricks.staging
-  path     = var.project_directory_path
+  path     = "${var.project_directory_path}-staging"
 }
 
 resource "databricks_permissions" "staging_directory_usage" {
@@ -43,7 +43,7 @@ resource "databricks_permissions" "staging_directory_usage" {
 
 resource "databricks_directory" "prod_directory" {
   provider = databricks.prod
-  path     = var.project_directory_path
+  path     = "${var.project_directory_path}-prod"
 }
 
 resource "databricks_permissions" "prod_directory_usage" {
